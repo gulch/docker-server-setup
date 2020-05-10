@@ -1,0 +1,67 @@
+version: '3.0'
+
+services:
+
+  #PHP Service
+  php:
+    image: devilbox/php-fpm-8.0
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./www:/var/www
+    links:
+      - mysql
+    networks:
+      - app-network
+
+  # Nginx
+  nginx:
+    image: xddxdd/nginx
+    command: '-g "daemon off;"'
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 80:80
+      - 443:443/tcp
+      - 443:443/udp
+    volumes:
+      - ./www:/var/www
+      - ./nginx-conf:/usr/local/nginx/conf
+    links:
+      - php
+    networks:
+      - app-network  
+
+  #MySQL Service
+  mysql:
+    image: mysql
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=db001
+      - MYSQL_USER=user0001
+      - MYSQL_PASSWORD=pwd001
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+  # PhpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8081:80
+    links:
+      - mysql:db
+    networks:
+      - app-network
+
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
