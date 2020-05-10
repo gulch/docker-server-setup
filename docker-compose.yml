@@ -2,24 +2,22 @@ version: '3.0'
 
 services:
 
-  #PHP Service
+  # PHP
   php:
     image: devilbox/php-fpm-8.0
     restart: unless-stopped
-    tty: true
     volumes:
       - ./www:/var/www
     links:
       - mysql
     networks:
-      - app-network
+      - server-network
 
   # Nginx
   nginx:
     image: xddxdd/nginx
     command: '-g "daemon off;"'
     restart: unless-stopped
-    tty: true
     ports:
       - 80:80
       - 443:443/tcp
@@ -30,14 +28,12 @@ services:
     links:
       - php
     networks:
-      - app-network  
+      - server-network  
 
-  #MySQL Service
+  # MySQL
   mysql:
     image: mysql
-    container_name: mysql
     restart: unless-stopped
-    tty: true
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=db001
@@ -48,7 +44,7 @@ services:
     ports:
       - "3306:3306"
     networks:
-      - app-network
+      - server-network
 
   # PhpMyAdmin
   phpmyadmin:
@@ -58,10 +54,10 @@ services:
     links:
       - mysql:db
     networks:
-      - app-network
+      - server-network
 
 
-#Docker Networks
+# Docker Networks
 networks:
-  app-network:
+  server-network:
     driver: bridge
